@@ -1,0 +1,182 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Orbits - Cognify{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/orbits.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-2"><i class="fas fa-orbit me-2"></i>Orbit Management</h1>
+                    <p class="text-muted">Manage your orbits and their configurations</p>
+                </div>
+                <a href="{% url 'orbits:orbit_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create Orbit
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <form method="get" class="d-flex">
+                                <input type="text" name="search" class="form-control me-2"
+                                       placeholder="Search orbits..." value="{{ search_query }}">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="{% url 'orbits:orbit_list' %}"
+                                   class="btn btn-outline-secondary {% if not current_status %}active{% endif %}">
+                                    All
+                                </a>
+                                {% for status_value, status_label in status_choices %}
+                                <a href="?status={{ status_value }}"
+                                   class="btn btn-outline-secondary {% if current_status == status_value %}active{% endif %}">
+                                    {{ status_label }}
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {% if messages %}
+    <div class="row mb-2">
+        <div class="col-xl-12 col-lg-12 col-md-12 mb-4">
+            <div class="messages mb-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Orbits Grid -->
+    <div class="row">
+        {% for orbit in orbits %}
+        <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
+            <div class="orbit-card card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center"
+                     style="border-left: 4px solid {{ orbit.color }};">
+                    <h5 class="card-title mb-0">
+                        {% if orbit.icon %}
+                        <i class="{{ orbit.icon }} me-2"></i>
+                        {% else %}
+                        <i class="fas fa-circle me-2" style="color:{{ orbit.color }};"></i>
+                        {% endif %}
+                        {{ orbit.name }}
+                    </h5>
+                    <span class="badge {% if orbit.status == 'active' %}bg-success{% elif orbit.status == 'inactive' %}bg-warning{% elif orbit.status == 'archived' %}bg-secondary{% else %}bg-info{% endif %}">
+                        {{ orbit.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    {% if orbit.description %}
+                    <p class="card-text">{{ orbit.description }}</p>
+                    {% else %}
+                    <p class="card-text text-muted">No description provided.</p>
+                    {% endif %}
+
+                    <div class="orbit-meta">
+                        <small class="text-muted">
+                            <i class="fas fa-sort-numeric-down me-1"></i>Order: {{ orbit.order }}
+                        </small>
+                        <br>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>Created: {{ orbit.created_at|date:"M d, Y" }}
+                        </small>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100" role="group">
+                        <a href="{% url 'orbits:orbit_detail' orbit.slug %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'orbits:orbit_update' orbit.slug %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        {% if orbit.status == 'active' %}
+                        <a href="{% url 'orbits:orbit_deactivate' orbit.slug %}" class="btn btn-sm btn-outline-warning">
+                            <i class="fas fa-pause"></i>
+                        </a>
+                        {% elif orbit.status == 'inactive' %}
+                        <a href="{% url 'orbits:orbit_activate' orbit.slug %}" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-play"></i>
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'orbits:orbit_delete' orbit.slug %}" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-orbit fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No orbits found</h4>
+                <p class="text-muted">Get started by creating your first orbit.</p>
+                <a href="{% url 'orbits:orbit_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create Your First Orbit
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Stats Section -->
+    {% if orbits %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h4 class="text-primary">{{ orbits|length }}</h4>
+                            <p class="text-muted mb-0">Total Orbits</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-success">{{ orbits|length }}</h4>
+                            <p class="text-muted mb-0">Active</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-warning">0</h4>
+                            <p class="text-muted mb-0">Inactive</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-secondary">0</h4>
+                            <p class="text-muted mb-0">Archived</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

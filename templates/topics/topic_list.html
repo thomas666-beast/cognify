@@ -1,0 +1,247 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Topics - Cognify{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/topics.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-2"><i class="fas fa-comments me-2"></i>Topic Management</h1>
+                    <p class="text-muted">Manage topics and study participants across different orbits</p>
+                </div>
+                <a href="{% url 'topics:topic_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create Topic
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <form method="get" class="d-flex">
+                                <input type="text" name="search" class="form-control me-2"
+                                       placeholder="Search topics, orbits, or participants..." value="{{ search_query }}">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="{% url 'topics:topic_list' %}"
+                                   class="btn btn-outline-secondary {% if not current_orbit and not current_status %}active{% endif %}">
+                                    All Orbits
+                                </a>
+                                {% for orbit in orbits %}
+                                <a href="?orbit={{ orbit.id }}"
+                                   class="btn btn-outline-secondary {% if current_orbit == orbit.id|stringformat:'s' %}active{% endif %}">
+                                    <i class="fas fa-orbit me-1"></i>{{ orbit.name }}
+                                </a>
+                                {% endfor %}
+                                <a href="?status=active"
+                                   class="btn btn-outline-success {% if current_status == 'active' %}active{% endif %}">
+                                    Active
+                                </a>
+                                <a href="?status=inactive"
+                                   class="btn btn-outline-warning {% if current_status == 'inactive' %}active{% endif %}">
+                                    Inactive
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Topics Grid -->
+    <div class="row">
+        {% for topic in topics %}
+        <div class="col-xl-6 col-lg-6 col-md-6 mb-4">
+            <div class="topic-card card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title mb-1">
+                            <i class="fas fa-file-alt me-2"></i>
+                            {{ topic.title }}
+                        </h5>
+                        <div class="orbit-info">
+                            <small class="text-muted">
+                                <i class="fas fa-orbit me-1 text-info"></i>
+                                it belongs to <strong class="text-primary">{{ topic.orbit.name }}</strong>
+                            </small>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="badge {% if topic.is_active %}bg-success{% else %}bg-warning{% endif %} me-1">
+                            {% if topic.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- About Participant -->
+                    <div class="about-section mb-3">
+                        <h6 class="text-muted mb-2">
+                            <i class="fas fa-user-circle me-1"></i>About Participant:
+                        </h6>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user me-2 text-primary"></i>
+                            <div>
+                                <strong>{{ topic.about.get_full_name }}</strong>
+                                <small class="text-muted d-block">@{{ topic.about.nickname }}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="description-section mb-3">
+                        <h6 class="text-muted mb-2">
+                            <i class="fas fa-align-left me-1"></i>Description:
+                        </h6>
+                        <p class="card-text description-preview">{{ topic.description|truncatewords:25 }}</p>
+                    </div>
+
+                    <!-- Studying Participants -->
+                    <div class="studying-participants mb-3">
+                        <h6 class="text-muted mb-2">
+                            <i class="fas fa-users me-1"></i>
+                            Studying Participants ({{ topic.studying_participants_count }})
+                        </h6>
+                        {% if topic.studying_participants.all %}
+                        <div class="participant-tags">
+                            {% for participant in topic.studying_participants.all|slice:":3" %}
+                            <span class="badge bg-light text-dark border me-1 mb-1">
+                                {{ participant.nickname }}
+                            </span>
+                            {% endfor %}
+                            {% if topic.studying_participants_count > 3 %}
+                            <span class="badge bg-light text-muted border">
+                                +{{ topic.studying_participants_count|add:"-3" }} more
+                            </span>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted small mb-0">No participants studying this topic yet.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Bosses -->
+                    <div class="bosses-section mb-3">
+                        <h6 class="text-muted mb-2">
+                            <i class="fas fa-crown me-1 text-warning"></i>
+                            Bosses ({{ topic.bosses_count }})
+                        </h6>
+                        {% if topic.bosses.all %}
+                        <div class="boss-tags">
+                            {% for boss in topic.bosses.all|slice:":3" %}
+                            <span class="badge bg-warning text-dark border me-1 mb-1">
+                                <i class="fas fa-crown me-1"></i>{{ boss.nickname }}
+                            </span>
+                            {% endfor %}
+                            {% if topic.bosses_count > 3 %}
+                            <span class="badge bg-light text-muted border">
+                                +{{ topic.bosses_count|add:"-3" }} more
+                            </span>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted small mb-0">No bosses assigned to this topic yet.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Meta Information -->
+                    <div class="topic-meta">
+                        <div class="row text-muted small">
+                            <div class="col-6">
+                                <i class="fas fa-question-circle me-1"></i>
+                                {{ topic.question_count }} questions
+                            </div>
+                            <div class="col-6 text-end">
+                                <i class="fas fa-calendar me-1"></i>
+                                {{ topic.created_at|date:"M d, Y" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100" role="group">
+                        <a href="{% url 'topics:topic_detail' topic.slug %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'topics:topic_update' topic.slug %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        {% if topic.is_active %}
+                        <a href="{% url 'topics:topic_deactivate' topic.slug %}" class="btn btn-sm btn-outline-warning">
+                            <i class="fas fa-pause"></i>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'topics:topic_activate' topic.slug %}" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-play"></i>
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'topics:topic_delete' topic.slug %}" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-comments fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No topics found</h4>
+                <p class="text-muted">Get started by creating your first topic.</p>
+                <a href="{% url 'topics:topic_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create First Topic
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Stats Section -->
+    {% if topics %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h4 class="text-primary">{{ topics|length }}</h4>
+                            <p class="text-muted mb-0">Total Topics</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-success">{{ topics|length }}</h4>
+                            <p class="text-muted mb-0">Active</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-warning">0</h4>
+                            <p class="text-muted mb-0">Inactive</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-info">{{ orbits|length }}</h4>
+                            <p class="text-muted mb-0">Orbits</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

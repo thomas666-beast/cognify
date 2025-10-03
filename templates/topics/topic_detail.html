@@ -1,0 +1,521 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ topic.title }} - Cognify{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/topics.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <!-- Topic Header -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-1">
+                                <i class="fas fa-file-alt me-2"></i>
+                                {{ topic.title }}
+                            </h1>
+                            <div class="orbit-info mt-2">
+                                <span class="text-muted">
+                                    <i class="fas fa-orbit me-1 text-info"></i>
+                                    it belongs to <strong class="text-primary">{{ topic.orbit.name }}</strong>
+                                </span>
+                            </div>
+                            <div class="mt-1">
+                                <span class="badge {% if topic.is_active %}bg-success{% else %}bg-warning{% endif %} me-2">
+                                    {% if topic.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#demoModal">
+                                <i class="fas fa-eye me-2"></i>View Demo
+                            </button>
+                            <a href="{% url 'topics:topic_update' topic.slug %}" class="btn btn-outline-primary">
+                                <i class="fas fa-edit me-2"></i>Edit
+                            </a>
+                            <a href="{% url 'topics:topic_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="text-muted mb-3">Description</h5>
+                            <p class="lead">{{ topic.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Topic Details -->
+            <div class="row">
+                <!-- About Participant -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-user-circle me-2"></i>About Participant
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="user-avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">{{ topic.about.get_full_name }}</h6>
+                                    <p class="text-muted mb-0">@{{ topic.about.nickname }}</p>
+                                    <small class="text-muted">{{ topic.about.get_position_display }}</small>
+                                </div>
+                            </div>
+                            {% if topic.about.bio %}
+                            <p class="small text-muted">{{ topic.about.bio|truncatewords:20 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orbit Information -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-orbit me-2 text-info"></i>Orbit Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="user-avatar-sm bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3">
+                                    <i class="fas fa-orbit"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">{{ topic.orbit.name }}</h6>
+                                    <p class="text-muted mb-0">{{ topic.orbit.get_status_display }}</p>
+                                    {% if topic.orbit.description %}
+                                    <small class="text-muted">{{ topic.orbit.description|truncatewords:10 }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="orbit-meta text-muted small">
+                                <div class="mb-1">
+                                    <i class="fas fa-sort-numeric-down me-1"></i>
+                                    Order: {{ topic.orbit.order }}
+                                </div>
+                                <div class="mb-1">
+                                    <i class="fas fa-palette me-1"></i>
+                                    Color:
+                                    <span class="color-preview" style="background-color: {{ topic.orbit.color }}; display: inline-block; width: 15px; height: 15px; border-radius: 3px; vertical-align: middle; margin-left: 5px;"></span>
+                                    {{ topic.orbit.color }}
+                                </div>
+                                <div>
+                                    <i class="fas fa-calendar me-1"></i>
+                                    Created: {{ topic.orbit.created_at|date:"M d, Y" }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Studying Participants -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-users me-2"></i>Studying Participants
+                            </h5>
+                            <span class="badge bg-primary">{{ topic.studying_participants_count }}</span>
+                        </div>
+                        <div class="card-body">
+                            {% if topic.studying_participants.all %}
+                            <div class="studying-list">
+                                {% for participant in topic.studying_participants.all %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="user-avatar-xs bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                                        <i class="fas fa-user fa-xs"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <small class="fw-bold">{{ participant.nickname }}</small>
+                                        <br>
+                                        <small class="text-muted">{{ participant.get_full_name }}</small>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-muted text-center py-3">
+                                <i class="fas fa-users fa-2x mb-2 d-block"></i>
+                                No participants studying this topic yet.
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bosses Section -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-crown me-2 text-warning"></i>Bosses
+                            </h5>
+                            <span class="badge bg-warning">{{ topic.bosses_count }}</span>
+                        </div>
+                        <div class="card-body">
+                            {% if topic.bosses.all %}
+                            <div class="bosses-list">
+                                {% for boss in topic.bosses.all %}
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="user-avatar-sm bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center me-3">
+                                        <i class="fas fa-crown"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ boss.get_full_name }}</h6>
+                                        <p class="text-muted mb-0">@{{ boss.nickname }}</p>
+                                        <small class="text-muted">{{ boss.get_position_display }}</small>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-muted text-center py-3">
+                                <i class="fas fa-crown fa-2x mb-2 d-block"></i>
+                                No bosses assigned to this topic yet.
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-question-circle me-2"></i>Questions
+                    </h5>
+                    <div>
+                        <span class="badge bg-primary me-2">{{ topic.question_count }}</span>
+                        <a href="{% url 'topics:question_create' topic_slug=topic.slug %}" class="btn btn-sm btn-success">
+                            <i class="fas fa-plus me-1"></i>Add Question
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if questions %}
+                    <div class="questions-list">
+                        {% for question in questions %}
+                        <div class="question-item card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="card-title mb-2">
+                                            <a href="{% url 'topics:question_detail' topic_slug=topic.slug question_id=question.id %}" class="text-decoration-none">
+                                                {{ question.question_text }}
+                                            </a>
+                                        </h6>
+                                        <div class="question-meta text-muted small">
+                                            <span class="me-3">
+                                                <i class="fas fa-list-ol me-1"></i>Order: {{ question.order }}
+                                            </span>
+                                            <span class="me-3">
+                                                <i class="fas fa-check-circle me-1"></i>{{ question.answer_count }} answers
+                                            </span>
+                                            <span class="badge {% if question.is_active %}bg-success{% else %}bg-warning{% endif %}">
+                                                {% if question.is_active %}Active{% else %}Inactive{% endif %}
+                                            </span>
+                                        </div>
+                                        <!-- Show answer participants preview -->
+                                        {% if question.answers.all %}
+                                        <div class="answer-participants mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-users me-1"></i>
+                                                Answered by:
+                                                {% for answer in question.answers.all|slice:":3" %}
+                                                {% if answer.participant %}
+                                                <span class="badge bg-light text-dark border">{{ answer.participant.nickname }}</span>
+                                                {% else %}
+                                                <span class="badge bg-info text-white border">Admin</span>
+                                                {% endif %}
+                                                {% endfor %}
+                                                {% if question.answer_count > 3 %}
+                                                <span class="badge bg-light text-muted border">+{{ question.answer_count|add:"-3" }} more</span>
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="btn-group btn-group-sm ms-3">
+                                        <a href="{% url 'topics:question_detail' topic_slug=topic.slug question_id=question.id %}" class="btn btn-outline-primary" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'topics:question_update' topic_slug=topic.slug question_id=question.id %}" class="btn btn-outline-secondary" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'topics:question_delete' topic_slug=topic.slug question_id=question.id %}" class="btn btn-outline-danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Questions Yet</h5>
+                        <p class="text-muted">Get started by adding the first question to this topic.</p>
+                        <a href="{% url 'topics:question_create' topic_slug=topic.slug %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add First Question
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        {% if topic.is_active %}
+                        <div class="col-auto">
+                            <a href="{% url 'topics:topic_deactivate' topic.slug %}" class="btn btn-warning">
+                                <i class="fas fa-pause me-2"></i>Deactivate
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="col-auto">
+                            <a href="{% url 'topics:topic_activate' topic.slug %}" class="btn btn-success">
+                                <i class="fas fa-play me-2"></i>Activate
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        <div class="col-auto">
+                            <a href="{% url 'topics:topic_delete' topic.slug %}" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Demo Modal -->
+<div class="modal fade" id="demoModal" tabindex="-1" aria-labelledby="demoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="demoModalLabel">
+                    <i class="fas fa-project-diagram me-2"></i>
+                    Topic Structure: {{ topic.title }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Silo Diagram -->
+                <div class="silo-diagram">
+                    <!-- Orbit Level -->
+                    <div class="silo-level orbit-level text-center mb-4">
+                        <div class="level-label">
+                            <i class="fas fa-orbit fa-2x text-info mb-2"></i>
+                            <h4 class="text-info">Orbit: {{ topic.orbit.name }}</h4>
+                            <p class="text-muted">This topic belongs to the <strong>{{ topic.orbit.name }}</strong> orbit</p>
+                        </div>
+                        <div class="connection-line"></div>
+                    </div>
+
+                    <!-- Topic Level -->
+                    <div class="silo-level topic-level text-center mb-4">
+                        <div class="level-card card border-primary mx-auto" style="max-width: 500px;">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-file-alt me-2"></i>
+                                    {{ topic.title }}
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">{{ topic.description }}</p>
+                                <div class="topic-meta text-muted small">
+                                    <div>
+                                        <i class="fas fa-calendar me-1"></i>
+                                        Created: {{ topic.created_at|date:"M d, Y" }}
+                                    </div>
+                                    <div class="mt-1">
+                                        <i class="fas fa-power-off me-1"></i>
+                                        Status:
+                                        <span class="badge {% if topic.is_active %}bg-success{% else %}bg-warning{% endif %}">
+                                            {% if topic.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="connection-line"></div>
+                    </div>
+
+                    <!-- About Participant Level -->
+                    <div class="silo-level about-level text-center mb-4">
+                        <div class="level-label mb-3">
+                            <i class="fas fa-user-circle fa-2x text-success mb-2"></i>
+                            <h5 class="text-success">About Participant</h5>
+                        </div>
+                        <div class="level-card card border-success mx-auto" style="max-width: 400px;">
+                            <div class="card-body text-center">
+                                <div class="participant-avatar bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-user fa-2x"></i>
+                                </div>
+                                <h6 class="card-title">{{ topic.about.get_full_name }}</h6>
+                                <p class="card-text text-muted mb-1">@{{ topic.about.nickname }}</p>
+                                <p class="card-text text-muted small">{{ topic.about.get_position_display }}</p>
+                                {% if topic.about.bio %}
+                                <p class="card-text small">{{ topic.about.bio|truncatewords:15 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="connection-line"></div>
+                    </div>
+
+                    <!-- Bosses Level -->
+                    {% if topic.bosses.all %}
+                    <div class="silo-level bosses-level text-center mb-4">
+                        <div class="level-label mb-3">
+                            <i class="fas fa-crown fa-2x text-warning mb-2"></i>
+                            <h5 class="text-warning">Bosses ({{ topic.bosses_count }})</h5>
+                        </div>
+                        <div class="row justify-content-center">
+                            {% for boss in topic.bosses.all %}
+                            <div class="col-md-4 mb-3">
+                                <div class="level-card card border-warning h-100">
+                                    <div class="card-body text-center">
+                                        <div class="boss-avatar bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+                                            <i class="fas fa-crown"></i>
+                                        </div>
+                                        <h6 class="card-title">{{ boss.nickname }}</h6>
+                                        <p class="card-text text-muted small mb-1">{{ boss.get_full_name }}</p>
+                                        <p class="card-text text-muted small">{{ boss.get_position_display }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="connection-line"></div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Studying Participants Level -->
+                    {% if topic.studying_participants.all %}
+                    <div class="silo-level participants-level text-center mb-4">
+                        <div class="level-label mb-3">
+                            <i class="fas fa-users fa-2x text-info mb-2"></i>
+                            <h5 class="text-info">Studying Participants ({{ topic.studying_participants_count }})</h5>
+                        </div>
+                        <div class="row justify-content-center">
+                            {% for participant in topic.studying_participants.all %}
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="level-card card border-info h-100">
+                                    <div class="card-body text-center p-2">
+                                        <div class="participant-avatar bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <h6 class="card-title small mb-1">{{ participant.nickname }}</h6>
+                                        <p class="card-text text-muted small">{{ participant.get_position_display }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="connection-line"></div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Questions Level -->
+                    {% if questions %}
+                    <div class="silo-level questions-level text-center">
+                        <div class="level-label mb-3">
+                            <i class="fas fa-question-circle fa-2x text-primary mb-2"></i>
+                            <h5 class="text-primary">Questions & Answers ({{ topic.question_count }})</h5>
+                        </div>
+                        <div class="questions-container">
+                            {% for question in questions %}
+                            <div class="question-card card border-primary mb-3 mx-auto" style="max-width: 600px;">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-question me-2"></i>
+                                        Question {{ forloop.counter }}
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">{{ question.question_text }}</p>
+
+                                    <!-- Answers -->
+                                    {% if question.answers.all %}
+                                    <div class="answers-section mt-3">
+                                        <h6 class="text-muted mb-2">Answers:</h6>
+                                        <div class="row">
+                                            {% for answer in question.answers.all %}
+                                            <div class="col-md-6 mb-2">
+                                                <div class="answer-card card {% if answer.is_correct %}border-success{% else %}border-secondary{% endif %} h-100">
+                                                    <div class="card-body p-2">
+                                                        <div class="d-flex align-items-start">
+                                                            {% if answer.is_correct %}
+                                                            <i class="fas fa-check-circle text-success me-2 mt-1" title="Correct Answer"></i>
+                                                            {% else %}
+                                                            <i class="fas fa-circle text-muted me-2 mt-1"></i>
+                                                            {% endif %}
+                                                            <div class="flex-grow-1">
+                                                                <p class="card-text small mb-1">{{ answer.answer_text|truncatewords:10 }}</p>
+                                                                <div class="answer-meta text-muted extra-small">
+                                                                    <i class="fas fa-user me-1"></i>
+                                                                    {% if answer.participant %}
+                                                                    By: <strong>{{ answer.participant.nickname }}</strong>
+                                                                    {% else %}
+                                                                    <strong>Admin Generated</strong>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <p class="text-muted small mb-0">No answers yet.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="window.print()">
+                    <i class="fas fa-print me-2"></i>Print Diagram
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

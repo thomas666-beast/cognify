@@ -1,0 +1,306 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Cognify{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/topics.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas {% if topic %}fa-edit{% else %}fa-plus{% endif %} me-2"></i>
+                        {{ title }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="row g-3">
+                            <!-- About Participant -->
+                            <div class="col-md-6">
+                                <label for="{{ form.about.id_for_label }}" class="form-label">
+                                    <i class="fas fa-user-circle me-1"></i>About Participant *
+                                </label>
+                                {{ form.about }}
+                                {% if form.about.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.about.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">Select the participant this topic is about.</div>
+                            </div>
+
+                            <!-- Orbit -->
+                            <div class="col-md-6">
+                                <label for="{{ form.orbit.id_for_label }}" class="form-label">
+                                    <i class="fas fa-orbit me-1"></i>Orbit *
+                                </label>
+                                {{ form.orbit }}
+                                {% if form.orbit.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.orbit.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">Select the orbit this topic belongs to.</div>
+                            </div>
+
+                            <!-- Title -->
+                            <div class="col-12">
+                                <label for="{{ form.title.id_for_label }}" class="form-label">
+                                    <i class="fas fa-heading me-1"></i>Title *
+                                </label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.title.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                {% if form.title.help_text %}
+                                <div class="form-text">{{ form.title.help_text }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-12">
+                                <label for="{{ form.description.id_for_label }}" class="form-label">
+                                    <i class="fas fa-align-left me-1"></i>Description *
+                                </label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.description.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    {{ form.description.help_text }}
+                                </div>
+                            </div>
+
+                            <!-- Relationships Section -->
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-users me-2"></i>Participant Relationships
+                                </h5>
+                            </div>
+
+                            <!-- Studying Participants -->
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-header bg-primary text-white py-2">
+                                        <h6 class="card-title mb-0">
+                                            <i class="fas fa-users me-2"></i>Studying Participants
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <label for="{{ form.studying_participants.id_for_label }}" class="form-label small">
+                                            Participants studying this topic
+                                        </label>
+                                        {{ form.studying_participants }}
+                                        {% if form.studying_participants.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.studying_participants.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                        <div class="form-text small">
+                                            {{ form.studying_participants.help_text }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bosses -->
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-header bg-warning text-dark py-2">
+                                        <h6 class="card-title mb-0">
+                                            <i class="fas fa-crown me-2"></i>Bosses
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <label for="{{ form.bosses.id_for_label }}" class="form-label small">
+                                            Bosses overseeing this topic
+                                        </label>
+                                        {{ form.bosses }}
+                                        {% if form.bosses.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.bosses.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                        <div class="form-text small">
+                                            {{ form.bosses.help_text }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Active Status -->
+                            <div class="col-12 mt-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="form-check form-switch">
+                                            {{ form.is_active }}
+                                            <label class="form-check-label fw-bold" for="{{ form.is_active.id_for_label }}">
+                                                <i class="fas fa-power-off me-2"></i>Active Topic
+                                            </label>
+                                        </div>
+                                        {% if form.is_active.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.is_active.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                        <div class="form-text">
+                                            Inactive topics won't be visible to participants.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a href="{% url 'topics:topic_list' %}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>
+                                        {% if topic %}Update Topic{% else %}Create Topic{% endif %}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Understanding Topic Relationships
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-user-circle fa-2x text-primary"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="text-primary mb-1">About Participant</h6>
+                                    <p class="small text-muted mb-0">
+                                        The main participant that this topic is about. This is the subject of study.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-users fa-2x text-info"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="text-info mb-1">Studying Participants</h6>
+                                    <p class="small text-muted mb-0">
+                                        Participants who are learning about the main participant. They are the students.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-crown fa-2x text-warning"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="text-warning mb-1">Bosses</h6>
+                                    <p class="small text-muted mb-0">
+                                        Participants who oversee and manage this topic. They are the supervisors.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-3">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <strong>Important:</strong> The "About Participant" cannot be selected as a studying participant or boss for the same topic. This prevents circular relationships.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6 class="text-success">
+                                <i class="fas fa-check-circle me-2"></i>Best Practices
+                            </h6>
+                            <ul class="small text-muted">
+                                <li>Choose a clear and descriptive title</li>
+                                <li>Provide detailed description for context</li>
+                                <li>Assign relevant studying participants</li>
+                                <li>Select appropriate bosses for oversight</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Things to Avoid
+                            </h6>
+                            <ul class="small text-muted">
+                                <li>Don't make the about participant a boss</li>
+                                <li>Avoid vague or unclear titles</li>
+                                <li>Don't leave description empty</li>
+                                <li>Avoid inactive topics unless necessary</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

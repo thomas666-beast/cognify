@@ -1,0 +1,180 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Cognify{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/topics.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas {% if answer %}fa-edit{% else %}fa-plus{% endif %} me-2"></i>
+                        {{ title }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Breadcrumb Info -->
+                    <div class="alert alert-info">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Topic:</strong> {{ topic.title }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Question:</strong> {{ question.short_question_text }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="row g-3">
+                            <!-- Answer Text -->
+                            <div class="col-12">
+                                <label for="{{ form.answer_text.id_for_label }}" class="form-label">
+                                    Answer Text *
+                                </label>
+                                {{ form.answer_text }}
+                                {% if form.answer_text.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.answer_text.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">Enter the answer text (minimum 5 characters).</div>
+                            </div>
+
+                            <!-- Participant -->
+                            <div class="col-md-6">
+                                <label for="{{ form.participant.id_for_label }}" class="form-label">
+                                    Answered By
+                                </label>
+                                {{ form.participant }}
+                                {% if form.participant.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.participant.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    {{ form.participant.help_text }}
+                                </div>
+                            </div>
+
+                            <!-- Order -->
+                            <div class="col-md-3">
+                                <label for="{{ form.order.id_for_label }}" class="form-label">
+                                    Display Order
+                                </label>
+                                {{ form.order }}
+                                {% if form.order.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.order.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">Lower numbers display first.</div>
+                            </div>
+
+                            <!-- Correct Answer -->
+                            <div class="col-md-3">
+                                <div class="form-check form-switch mt-4 pt-3">
+                                    {{ form.is_correct }}
+                                    <label class="form-check-label fw-bold" for="{{ form.is_correct.id_for_label }}">
+                                        Correct Answer
+                                    </label>
+                                </div>
+                                {% if form.is_correct.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.is_correct.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="form-text text-warning">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    Only one answer can be marked as correct.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a href="{% if answer %}{% url 'topics:question_detail' topic_slug=topic.slug question_id=question.id %}{% else %}{% url 'topics:question_detail' topic_slug=topic.slug question_id=question.id %}{% endif %}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>
+                                        {% if answer %}Update Answer{% else %}Add Answer{% endif %}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>About Answer Attribution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-success">
+                                <i class="fas fa-user me-2"></i>Participant Answers
+                            </h6>
+                            <p class="small text-muted">
+                                When a participant provides an answer, select their name from the dropdown.
+                                This helps track who contributed which answers.
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">
+                                <i class="fas fa-robot me-2"></i>Admin Generated Answers
+                            </h6>
+                            <p class="small text-muted">
+                                Leave the "Answered By" field blank for system-generated answers,
+                                pre-defined answers, or answers provided by administrators.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

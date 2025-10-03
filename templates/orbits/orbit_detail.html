@@ -1,0 +1,154 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ orbit.name }} - Cognify{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/orbits.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <!-- Orbit Header -->
+            <div class="card mb-4">
+                <div class="card-header" style="border-left: 6px solid {{ orbit.color }};">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-1">
+                                {% if orbit.icon %}
+                                <i class="{{ orbit.icon }} me-2"></i>
+                                {% endif %}
+                                {{ orbit.name }}
+                            </h1>
+                            <span class="badge {% if orbit.status == 'active' %}bg-success{% elif orbit.status == 'inactive' %}bg-warning{% elif orbit.status == 'archived' %}bg-secondary{% else %}bg-info{% endif %}">
+                                {{ orbit.get_status_display }}
+                            </span>
+                        </div>
+                        <div class="btn-group">
+                            <a href="{% url 'orbits:orbit_update' orbit.slug %}" class="btn btn-outline-primary">
+                                <i class="fas fa-edit me-2"></i>Edit
+                            </a>
+                            <a href="{% url 'orbits:orbit_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if orbit.description %}
+                    <p class="lead">{{ orbit.description }}</p>
+                    {% else %}
+                    <p class="lead text-muted">No description provided.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Orbit Details -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Details
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <strong>Display Order:</strong>
+                                    <span class="float-end">{{ orbit.order }}</span>
+                                </div>
+                                <div class="col-12">
+                                    <strong>Color:</strong>
+                                    <span class="float-end">
+                                        <span class="color-preview" style="background-color: {{ orbit.color }};"></span>
+                                        {{ orbit.color }}
+                                    </span>
+                                </div>
+                                <div class="col-12">
+                                    <strong>Icon:</strong>
+                                    <span class="float-end">
+                                        {% if orbit.icon %}
+                                        <i class="{{ orbit.icon }}"></i> {{ orbit.icon }}
+                                        {% else %}
+                                        <span class="text-muted">None</span>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-history me-2"></i>Timeline
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <strong>Created:</strong>
+                                    <span class="float-end">{{ orbit.created_at|date:"M d, Y H:i" }}</span>
+                                </div>
+                                <div class="col-12">
+                                    <strong>Last Updated:</strong>
+                                    <span class="float-end">{{ orbit.updated_at|date:"M d, Y H:i" }}</span>
+                                </div>
+                                <div class="col-12">
+                                    <strong>Slug:</strong>
+                                    <span class="float-end text-muted">{{ orbit.slug }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        {% if orbit.status == 'active' %}
+                        <div class="col-auto">
+                            <a href="{% url 'orbits:orbit_deactivate' orbit.slug %}" class="btn btn-warning">
+                                <i class="fas fa-pause me-2"></i>Deactivate
+                            </a>
+                        </div>
+                        {% elif orbit.status == 'inactive' %}
+                        <div class="col-auto">
+                            <a href="{% url 'orbits:orbit_activate' orbit.slug %}" class="btn btn-success">
+                                <i class="fas fa-play me-2"></i>Activate
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        {% if orbit.status != 'archived' %}
+                        <div class="col-auto">
+                            <a href="{% url 'orbits:orbit_archive' orbit.slug %}" class="btn btn-secondary">
+                                <i class="fas fa-archive me-2"></i>Archive
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        <div class="col-auto">
+                            <a href="{% url 'orbits:orbit_delete' orbit.slug %}" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

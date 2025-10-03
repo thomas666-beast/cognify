@@ -1,0 +1,57 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Cognify{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="welcome-section">
+                <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+                <p class="lead">Welcome back, {{ master_username }}!</p>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3><i class="fas fa-quote-left"></i> Anti Spy Quotes</h3>
+                </div>
+                <div class="card-body">
+                    {% if quotes %}
+                        <div class="quotes-container">
+                            {% for quote in quotes %}
+                            <div class="quote-card mb-4 p-4 border rounded shadow-sm">
+                                <div class="quote-text">
+                                    <i class="fas fa-quote-left text-muted me-2"></i>
+                                    <span class="fst-italic">{{ quote.quote }}</span>
+                                    <i class="fas fa-quote-right text-muted ms-2"></i>
+                                </div>
+                                {% if quote.author %}
+                                <div class="quote-author mt-2 text-end">
+                                    <strong>— {{ quote.author }}</strong>
+                                </div>
+                                {% endif %}
+                                <div class="quote-meta mt-2 text-muted small">
+                                    Added on {{ quote.created_at|date:"F j, Y" }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No quotes available at the moment.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

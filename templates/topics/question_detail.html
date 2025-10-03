@@ -1,0 +1,167 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ question.short_question_text }} - Cognify{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/topics.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'topics:topic_list' %}">Topics</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'topics:topic_detail' slug=topic.slug %}">{{ topic.title }}</a></li>
+                    <li class="breadcrumb-item active">Question</li>
+                </ol>
+            </nav>
+
+            <!-- Question Header -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-1">
+                                <i class="fas fa-question-circle me-2"></i>
+                                Question
+                            </h1>
+                            <div>
+                                <span class="badge {% if question.is_active %}bg-success{% else %}bg-warning{% endif %} me-2">
+                                    {% if question.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                                <span class="badge bg-info">Order: {{ question.order }}</span>
+                            </div>
+                        </div>
+                        <div class="btn-group">
+                            <a href="{% url 'topics:question_update' topic_slug=topic.slug question_id=question.id %}" class="btn btn-outline-primary">
+                                <i class="fas fa-edit me-2"></i>Edit
+                            </a>
+                            <a href="{% url 'topics:answer_create' topic_slug=topic.slug question_id=question.id %}" class="btn btn-outline-success">
+                                <i class="fas fa-plus me-2"></i>Add Answer
+                            </a>
+                            <a href="{% url 'topics:topic_detail' slug=topic.slug %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="question-content">
+                        <h4 class="text-primary mb-4">{{ question.question_text }}</h4>
+
+                        <div class="question-meta row text-muted">
+                            <div class="col-md-6">
+                                <i class="fas fa-calendar me-1"></i>
+                                Created: {{ question.created_at|date:"M d, Y H:i" }}
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <i class="fas fa-sync-alt me-1"></i>
+                                Updated: {{ question.updated_at|date:"M d, Y H:i" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Answers Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list-ol me-2"></i>Answers
+                    </h5>
+                    <span class="badge bg-primary">{{ answers|length }}</span>
+                </div>
+                <div class="card-body">
+                    {% if answers %}
+                    <div class="answers-list">
+                        {% for answer in answers %}
+                        <div class="answer-item card mb-3 {% if answer.is_correct %}border-success{% else %}border-secondary{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="flex-grow-1">
+                                        <h6 class="card-title mb-2">
+                                            {% if answer.is_correct %}
+                                            <i class="fas fa-check-circle text-success me-2" title="Correct Answer"></i>
+                                            {% endif %}
+                                            Answer #{{ answer.order }}
+                                        </h6>
+                                        <p class="card-text">{{ answer.answer_text }}</p>
+                                    </div>
+                                    <div class="btn-group btn-group-sm ms-3">
+                                        <a href="{% url 'topics:answer_update' topic_slug=topic.slug question_id=question.id answer_id=answer.id %}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'topics:answer_delete' topic_slug=topic.slug question_id=question.id answer_id=answer.id %}" class="btn btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="answer-meta text-muted small">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <i class="fas fa-user me-1"></i>
+                                            {% if answer.participant %}
+                                            Answered by: <strong class="text-primary">{{ answer.participant.nickname }}</strong>
+                                            {% else %}
+                                            <strong class="text-info">Admin Generated</strong>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6 text-end">
+                                            <i class="fas fa-sort-numeric-down me-1"></i>Order: {{ answer.order }}
+                                            {% if answer.is_correct %}
+                                            <span class="badge bg-success ms-2">Correct Answer</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="mt-1">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        Added: {{ answer.created_at|date:"M d, Y H:i" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Answers Yet</h5>
+                        <p class="text-muted">Get started by adding the first answer to this question.</p>
+                        <a href="{% url 'topics:answer_create' topic_slug=topic.slug question_id=question.id %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add First Answer
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-auto">
+                            <a href="{% url 'topics:answer_create' topic_slug=topic.slug question_id=question.id %}" class="btn btn-success">
+                                <i class="fas fa-plus me-2"></i>Add Answer
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{% url 'topics:question_delete' topic_slug=topic.slug question_id=question.id %}" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Delete Question
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
