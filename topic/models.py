@@ -87,6 +87,16 @@ class Topic(models.Model):
             )
         ]
 
+    @classmethod
+    def get_optimized_queryset(cls):
+        return cls.objects.select_related(
+            'about', 'orbit'
+        ).prefetch_related(
+            'studying_participants',
+            'bosses',
+            'questions__answers__participant'
+        )
+
     def __str__(self):
         return f"{self.title} - About: {self.about.nickname}"
 

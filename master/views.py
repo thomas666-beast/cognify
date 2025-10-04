@@ -1,9 +1,17 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect
-
 from .forms import MasterRegistrationForm, MasterLoginForm
 from .models import Master
+from django.core.cache import cache
+from django.http import HttpResponseForbidden
 
+
+def rate_limit(key, limit=5, timeout=60):
+    count = cache.get(key, 0)
+    if count >= limit:
+        return True
+    cache.set(key, count + 1, timeout)
+    return False
 
 def register(request):
     if request.method == 'POST':
@@ -21,6 +29,12 @@ def register(request):
 
 
 def login(request):
+    ip = request.META.get('REMOTE_ADDR')
+
+    if rate_limit(f'login_attempt_{ip}'):
+        messages.error(request, 'Too many login attempts. Please try again later.')
+        return render(request, 'master/login.html')
+
     if request.method == 'POST':
         form = MasterLoginForm(request.POST)
         if form.is_valid():

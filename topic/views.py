@@ -5,11 +5,13 @@ from master.views import master_required
 from orbit.models import Orbit
 from .models import Topic, Question, Answer
 from .forms import TopicForm, QuestionForm, AnswerForm
+from django.views.decorators.cache import cache_page
 
 
+@cache_page(60 * 15)
 @master_required
 def topic_list(request):
-    topics = Topic.objects.all()
+    topics = Topic.get_optimized_queryset().all()
 
     # Filter by orbit if provided
     orbit_filter = request.GET.get('orbit')
