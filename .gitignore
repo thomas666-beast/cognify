@@ -447,10 +447,6 @@ backups/
 /media/
 !/media/.gitkeep
 
-# Static files (if collected separately)
-/static/
-!/static/.gitkeep
-
 # Celery beat schedule file
 celerybeat-schedule
 

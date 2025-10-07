@@ -1,0 +1,98 @@
+/* Participant Specific Styles - Light Theme */
+.participant-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+}
+
+.participant-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.participant-info .info-item {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.bio-preview {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.participant-meta {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+    color: var(--text-muted);
+}
+
+/* Form enhancements for participants */
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-check-label {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Button group enhancements */
+.btn-group .btn {
+    border-radius: 0;
+    border: 1px solid var(--border-color);
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .participant-card .btn-group {
+        flex-direction: column;
+    }
+
+    .participant-card .btn-group .btn {
+        border-radius: 0;
+        margin-bottom: 1px;
+        border: 1px solid var(--border-color);
+    }
+
+    .participant-card .btn-group .btn:first-child {
+        border-top-left-radius: 0.375rem;
+        border-top-right-radius: 0.375rem;
+        border-bottom-left-radius: 0;
+    }
+
+    .participant-card .btn-group .btn:last-child {
+        border-bottom-left-radius: 0.375rem;
+        border-bottom-right-radius: 0.375rem;
+        border-top-right-radius: 0;
+        margin-bottom: 0;
+    }
+}
+
+/* Card header enhancements */
+.participant-card .card-header {
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-light);
+}
+
+/* Text colors for light theme */
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
